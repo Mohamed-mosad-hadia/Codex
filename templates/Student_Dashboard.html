@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة متابعة الطالب - مركز الجريحي</title>
+    <meta name="description" content="نظام متابعة الطلاب في مركز الجريحي للتعليم والتدريب">
+    <meta name="author" content="Mohamed Mosaad">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Merged Style -->
+    <link rel="stylesheet" href="{% static 'Student_page_updated.css' %}">
+
+</head>
+
+<body class="light-mode">
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <img src="{% static 'logo.jpeg' %}" alt="شعار المركز">
+                    </div>
+                    <div class="logo-text">
+                        <h1 style="color: aqua;">مركز الجريحي</h1>
+                        <p style="color: azure;">نظام متابعة الطلاب</p>
+                    </div>
+                </div>
+
+                <div class="student-name">
+                    {{ student.name }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+
+    <div class="container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <!-- <h2 class="dashboard-title">لوحة متابعة الطالب</h2> -->
+
+            <div class="action-buttons">
+                <button class="btn btn-outline" onclick="toggleDarkMode()">
+                    <span class="theme-text">الوضع الليلي</span>
+                </button>
+                <button class="btn btn-destructive" onclick="logout()">
+                    تسجيل الخروج
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h3>معدل الحضور</h3>
+                        <p class="value green">{{ attendance_rate }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h3>حالة الدفع</h3>
+                        <p class="value blue">{{ paid_count }}/{{ total_payments }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h3>متوسط الدرجات</h3>
+                        <p class="value purple">{{ avg_grade }}/10</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="card">
+            <div class="card-header indigo">
+                معلومات الطالب
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-text">
+                            <h4>الاسم الكامل</h4>
+                            <p>{{ student.name }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-text">
+                            <h4>رقم الهاتف</h4>
+                            <p>{{ student.phone }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-text">
+                            <h4>المجموعة</h4>
+                            <p>{{ student.group.name }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-text">
+                            <h4>تاريخ التسجيل</h4>
+                            <p>{{ student.registration_date }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-text">
+                            <h4>عدد الجلسات</h4>
+                            <p>{{ records|length }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-text">
+                            <h4>آخر حضور</h4>
+                            <p>{{ records.0.date|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Table -->
+        <div class="card">
+            <div class="card-header green">
+                سجل الحضور والدرجات
+            </div>
+            <div class="card-content" style="padding: 0;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>الحضور</th>
+                                <th>الدرجة</th>
+                                <th>ملاحظات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record.date }}</td>
+                                <td>
+                                    {% if record.attendance %}
+                                    <span class="badge success">✅ حاضر</span>
+                                    {% else %}
+                                    <span class="badge destructive">❌ غائب</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.grade >= 8 %}
+                                    <span class="grade-badge excellent">{{ record.grade }}</span>
+                                    {% elif record.grade >= 6 %}
+                                    <span class="grade-badge good">{{ record.grade }}</span>
+                                    {% else %}
+                                    <span class="grade-badge poor">{{ record.grade|default:"-" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.notes|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">لا توجد سجلات</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="card">
+            <div class="card-header orange">
+                سجل المدفوعات
+            </div>
+            <div class="card-content" style="padding: 0;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الشهر</th>
+                                <th>حالة الدفع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment.month|date:'F Y' }}</td>
+                                <td>
+                                    {% if payment.is_paid %}
+                                    <span class="badge success">✅ مدفوع</span>
+                                    {% else %}
+                                    <span class="badge destructive">❌ غير مدفوع</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2">لا توجد دفعات</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p><span class="developer">Mohamed Mosaad</span> - Software Engineer</p>
+            <p class="copyright">جميع الحقوق محفوظة © 2024</p>
+        </div>
+    </footer>
+
+    <!-- Script -->
+    <script>
+        let isDarkMode = false;
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            isDarkMode = true;
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode', 'dark');
+            updateThemeButton();
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode', 'dark');
+                document.body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+            }
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const themeText = document.querySelector('.theme-text');
+            if (isDarkMode) {
+                themeText.textContent = 'الوضع النهاري';
+            } else {
+                themeText.textContent = 'الوضع الليلي';
+            }
+        }
+
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                window.location.href = "{% url 'logout' %}";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.card, .stat-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in');
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+
+</html>
