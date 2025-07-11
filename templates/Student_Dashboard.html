@@ -82,7 +82,7 @@
                 <div class="stat-content">
                     <div class="stat-text">
                         <h3>متوسط الدرجات</h3>
-                        <p class="value purple">{{ avg_grade }}/10</p>
+                        <p class="value purple">{{ avg_grade|floatformat:1 }}%</p>
                     </div>
                 </div>
             </div>
@@ -163,12 +163,12 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if record.grade >= 8 %}
-                                    <span class="grade-badge excellent">{{ record.grade }}</span>
-                                    {% elif record.grade >= 6 %}
-                                    <span class="grade-badge good">{{ record.grade }}</span>
+                                    {% if record.grade_percentage >= 80 %}
+                                    <span class="grade-badge excellent">{{ record.grade_percentage|floatformat:1 }}%</span>
+                                    {% elif record.grade_percentage >= 60 %}
+                                    <span class="grade-badge good">{{ record.grade_percentage|floatformat:1 }}%</span>
                                     {% else %}
-                                    <span class="grade-badge poor">{{ record.grade|default:"-" }}</span>
+                                    <span class="grade-badge poor">{{ record.grade_percentage|default:"-" }}{% if record.grade_percentage %}%{% endif %}</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ record.notes|default:"-" }}</td>
