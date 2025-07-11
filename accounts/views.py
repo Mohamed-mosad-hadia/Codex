@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from students.models import Student
-from django.db.models import Avg
+from django.db.models import Avg, F, FloatField, ExpressionWrapper
 
 
 def login_view(request):
@@ -29,7 +29,12 @@ def dashboard(request):
     total_sessions = records.count()
     attended = records.filter(attendance=True).count()
     attendance_rate = int(attended * 100 / total_sessions) if total_sessions else 0
-    avg_grade = records.aggregate(avg=Avg('grade'))['avg'] or 0
+    annotated = records.annotate(
+        percent=ExpressionWrapper(
+            F('grade') * 100.0 / F('max_grade'), output_field=FloatField()
+        )
+    )
+    avg_grade = annotated.aggregate(avg=Avg('percent'))['avg'] or 0
     paid_count = payments.filter(is_paid=True).count()
 
     context = {
