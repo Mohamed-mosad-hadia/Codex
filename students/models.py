@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg, F, FloatField, ExpressionWrapper
 
 
 class Group(models.Model):
@@ -25,3 +26,20 @@ class Student(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def avg_grade_percentage(self):
+        """Return the student's average grade as a percentage."""
+        records = self.records.exclude(grade__isnull=True)
+        if not records.exists():
+            return None
+        annotated = records.annotate(
+            percent=ExpressionWrapper(
+                F('grade') * 100.0 / F('max_grade'),
+                output_field=FloatField(),
+            )
+        )
+        avg = annotated.aggregate(avg=Avg('percent'))['avg']
+        if avg is None:
+            return None
+        return round(avg, 2)
